@@ -90,14 +90,20 @@ btop.pkg-path = "btop"
 ## ------------------------------------------------------------------
 [build]
 [build.pytorch-sm120]
-description = "PyTorch with SM_120 (RTX 5090) compute capability support"
-version = "2.5.1-sm120"
+description = "PyTorch with FULL SM_120 kernel compilation for RTX 5090 - fixes Conv2D and cuDNN kernel issues"
+version = "2.10.0-sm120-kernels"
 command = """
   # Initialize git submodules first
   git submodule update --init --recursive
   
-  # Set up build environment
-  export TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6;9.0;12.0"
+  # Set up build environment with FORCED SM_120 kernel compilation
+  # Use only essential architectures plus SM_120 to force actual kernel compilation
+  export TORCH_CUDA_ARCH_LIST="7.5;8.0;8.6;9.0;12.0"
+  export CUDA_ARCH_LIST="7.5;8.0;8.6;9.0;12.0" 
+  
+  # Force compilation of all CUDA kernels for SM_120
+  export TORCH_CUDA_GENCODE="-gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -gencode arch=compute_120,code=sm_120 -gencode arch=compute_120,code=compute_120"
+  
   export USE_CUDA=1
   export USE_CUDNN=1
   export USE_CUFILE=0
@@ -107,15 +113,30 @@ command = """
   export BUILD_CUSTOM_PROTOBUF=OFF
   export MAX_JOBS=32
   
+  # Force kernel compilation flags
+  export CUDA_NVCC_FLAGS="--generate-code arch=compute_75,code=sm_75 --generate-code arch=compute_80,code=sm_80 --generate-code arch=compute_86,code=sm_86 --generate-code arch=compute_90,code=sm_90 --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120"
+  
+  # Ensure all PyTorch CUDA operations compile for SM_120
+  export BUILD_WITH_CUDA=ON
+  export USE_CUDA_STATIC_LINK=0
+  
   # Set CUDA paths
   export CUDA_HOME=/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9
   export LD_LIBRARY_PATH="$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LD_LIBRARY_PATH"
   export LIBRARY_PATH="$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LIBRARY_PATH"
   
-  # Compiler flags
+  # Compiler flags with explicit SM_120 kernel compilation
   export CXXFLAGS="-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2"
   export CFLAGS="-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2"
-  export NVCCFLAGS="--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler"
+  export NVCCFLAGS="--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120"
+  
+  # Ensure cuDNN kernels compile for SM_120
+  export CUDNN_FRONTEND_PATH="$CUDA_HOME/include"
+  export FORCE_CUDA_KERNEL_COMPILATION=1
+  
+  # PyTorch specific flags to force kernel compilation
+  export TORCH_CUDA_GENCODE_LIST="7.5;8.0;8.6;9.0;12.0"
+  export CMAKE_CUDA_ARCHITECTURES="75;80;86;90;120"
   
   # Create nvcc symlink to avoid flox paths in CMake
   mkdir -p /tmp/cuda-bin
