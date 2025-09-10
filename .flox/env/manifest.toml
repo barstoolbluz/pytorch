@@ -93,6 +93,9 @@ btop.pkg-path = "btop"
 description = "PyTorch with SM_120 (RTX 5090) compute capability support"
 version = "2.5.1-sm120"
 command = """
+  # Initialize git submodules first
+  git submodule update --init --recursive
+  
   # Set up build environment
   export TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6;9.0;12.0"
   export USE_CUDA=1
