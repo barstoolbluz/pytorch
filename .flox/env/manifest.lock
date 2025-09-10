@@ -1,0 +1,962 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "version": 1,
+    "install": {
+      "btop": {
+        "pkg-path": "btop"
+      },
+      "cmake": {
+        "pkg-path": "cmake"
+      },
+      "cudatoolkit": {
+        "pkg-path": "flox-cuda/cudaPackages_12_9.cudatoolkit",
+        "systems": [
+          "x86_64-linux"
+        ]
+      },
+      "gcc": {
+        "pkg-path": "gcc"
+      },
+      "ninja": {
+        "pkg-path": "ninja"
+      },
+      "protobuf": {
+        "pkg-path": "protobuf"
+      },
+      "python312": {
+        "pkg-path": "python312"
+      },
+      "uv": {
+        "pkg-path": "uv"
+      }
+    },
+    "hook": {},
+    "profile": {},
+    "options": {},
+    "build": {
+      "pytorch-sm120": {
+        "command": "  # Set up build environment\n  export TORCH_CUDA_ARCH_LIST=\"5.0;6.0;7.0;7.5;8.0;8.6;9.0;12.0\"\n  export USE_CUDA=1\n  export USE_CUDNN=1\n  export USE_CUFILE=0\n  export USE_TENSORPIPE=0\n  export USE_NCCL=0\n  export USE_SYSTEM_PROTOBUF=1\n  export BUILD_CUSTOM_PROTOBUF=OFF\n  export MAX_JOBS=32\n  \n  # Set CUDA paths\n  export CUDA_HOME=/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9\n  export LD_LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LD_LIBRARY_PATH\"\n  export LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LIBRARY_PATH\"\n  \n  # Compiler flags\n  export CXXFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export CFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export NVCCFLAGS=\"--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler\"\n  \n  # Create nvcc symlink to avoid flox paths in CMake\n  mkdir -p /tmp/cuda-bin\n  ln -sf $CUDA_HOME/bin/nvcc /tmp/cuda-bin/nvcc\n  export PATH=\"/tmp/cuda-bin:$PATH\"\n  \n  # Create Python virtual environment\n  python3 -m venv build_venv\n  source build_venv/bin/activate\n  \n  # Install Python dependencies\n  pip install --upgrade pip setuptools wheel\n  pip install cmake ninja six\n  pip install -r requirements.txt\n  \n  # Set up six module for NNPACK\n  mkdir -p build/confu-srcs/six\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/six/__init__.py\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/\n  cp build_venv/lib/python3.12/site-packages/six.py third_party/python-peachpy/\n  \n  # Build PyTorch\n  python setup.py develop\n  \n  # Install to output directory\n  mkdir -p $out/lib/python3.12/site-packages\n  cp -r build_venv/lib/python3.12/site-packages/torch* $out/lib/python3.12/site-packages/\n  \n  # Create wrapper script\n  mkdir -p $out/bin\n  cat > $out/bin/pytorch-sm120-info << EOF\n#!/bin/bash\necho \"PyTorch with SM_120 support for RTX 5090\"\npython3 -c \"import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA arch list: {torch.cuda.get_arch_list()}' if torch.cuda.is_available() else 'CUDA not available')\"\nEOF\n  chmod +x $out/bin/pytorch-sm120-info\n",
+        "version": "2.5.1-sm120",
+        "description": "PyTorch with SM_120 (RTX 5090) compute capability support"
+      }
+    }
+  },
+  "packages": [
+    {
+      "attr_path": "btop",
+      "broken": false,
+      "derivation": "/nix/store/5hgsqkj9pzyv1icghfwn4rpfrgm47fb0-btop-1.4.4.drv",
+      "description": "Monitor of resources",
+      "install_id": "btop",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "btop-1.4.4",
+      "pname": "btop",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:00.511385Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.4.4",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/rhdip0vx1hhvv5946mic35hsaz4z7zb7-btop-1.4.4"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "btop",
+      "broken": false,
+      "derivation": "/nix/store/5waylznikz8x5kiqbaq2sgb329na1jr0-btop-1.4.4.drv",
+      "description": "Monitor of resources",
+      "install_id": "btop",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "btop-1.4.4",
+      "pname": "btop",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:25.474480Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.4.4",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/znhvw53p9sc1lqy20bxhnm4qaq3p5cx3-btop-1.4.4"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "btop",
+      "broken": false,
+      "derivation": "/nix/store/iydy3wi7awjnmymvrl67q09nxi2bf8py-btop-1.4.4.drv",
+      "description": "Monitor of resources",
+      "install_id": "btop",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "btop-1.4.4",
+      "pname": "btop",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:43:52.530961Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.4.4",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/3crv4x9a4jydpq3dr3a2lszsf37za7gs-btop-1.4.4"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "btop",
+      "broken": false,
+      "derivation": "/nix/store/lzigrp1yghiwrj2xgkwpshp7gq1x9bnz-btop-1.4.4.drv",
+      "description": "Monitor of resources",
+      "install_id": "btop",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "btop-1.4.4",
+      "pname": "btop",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:28.219822Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.4.4",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/jqbyxfj238vk4qpsm8jsvfx06lm2gvla-btop-1.4.4"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "cmake",
+      "broken": false,
+      "derivation": "/nix/store/hszy4p803ahdar0qj9plyf17x72bffnp-cmake-3.31.7.drv",
+      "description": "Cross-platform, open-source build system generator",
+      "install_id": "cmake",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "cmake-3.31.7",
+      "pname": "cmake",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:00.733443Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.31.7",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/mn8piv26gjnq7hvmsg7z97vyqcjdz5vb-cmake-3.31.7"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "cmake",
+      "broken": false,
+      "derivation": "/nix/store/4krkpvs3rklia4sj1ba357awfvarvvjx-cmake-3.31.7.drv",
+      "description": "Cross-platform, open-source build system generator",
+      "install_id": "cmake",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "cmake-3.31.7",
+      "pname": "cmake",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:25.804853Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.31.7",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/z0h5pwnk70b0hzk9qb7209fppgrf080z-cmake-3.31.7-debug",
+        "out": "/nix/store/8avklqi4flb0y3dp6pqvqdkzx8i5dv9d-cmake-3.31.7"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "cmake",
+      "broken": false,
+      "derivation": "/nix/store/vfid12q2b8gncwzsc691aqn5a0b17m0m-cmake-3.31.7.drv",
+      "description": "Cross-platform, open-source build system generator",
+      "install_id": "cmake",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "cmake-3.31.7",
+      "pname": "cmake",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:43:52.740924Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.31.7",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/5isyjpdh2ya6p2m1c6ixc2n8p4nnpycx-cmake-3.31.7"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "cmake",
+      "broken": false,
+      "derivation": "/nix/store/m7iryi1pj2wl876ll5x9yvr55p7hxajh-cmake-3.31.7.drv",
+      "description": "Cross-platform, open-source build system generator",
+      "install_id": "cmake",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "cmake-3.31.7",
+      "pname": "cmake",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:28.526662Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.31.7",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/nnpfia0s39cy3l7rq2pnn2axs8k625jw-cmake-3.31.7-debug",
+        "out": "/nix/store/0vnarm4qjnj16dr3zj9kwq6bn79c0icn-cmake-3.31.7"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "cudaPackages_12_9.cudatoolkit",
+      "broken": false,
+      "derivation": "/nix/store/2xbd7fqnp1qj1aaj9jzzbl7l20r8gs22-cuda-merged-12.9.drv",
+      "description": "Wrapper substituting the deprecated runfile-based CUDA installation",
+      "install_id": "cudatoolkit",
+      "license": "CUDA Toolkit End User License Agreement (EULA)",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "cuda-merged-12.9",
+      "pname": "cuda-merged-12.9",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-09-10T10:59:20.133729981Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": true,
+      "version": "12.9",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/wj4k4brjq51724ma0i35ch5j272jb9l1-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:01.378067Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/cmkfhc8ydb11ci4d7p9zvfwa8ldlqj9i-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/zyj3s791p5gmh1inlh7dabp0nkhhyghw-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/qdi5hxxqwhvljdwa2z8caziynwrfq19m-gcc-wrapper-14.3.0"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/m97hx3y4y93ldsl5fcqg6c4hlr4h7r44-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:26.970165Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/ds1f9znhf2hp3x5hrak6sjcwxpwv6pas-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/2caf9bjar7dk1rm2wprhmkvrs82bgpzd-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/sf05r8srgh21m1804jvagbidggh05n08-gcc-wrapper-14.3.0"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/nv460qxkgwdxa5b2p1ywj9mjc86fxyh1-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:43:53.353124Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/xdj9w2c9pv7pwz3dhklwnpfpqk8gyjy7-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/2xwg44ir12p6l3r0rmc2gsdwn782lgyn-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/m7v6w0gms0fcz0cqwxnign7kfm6mx1h3-gcc-wrapper-14.3.0"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gcc",
+      "broken": false,
+      "derivation": "/nix/store/20y7rngzq2487g4hmdgn94a9gdhjdn5k-gcc-wrapper-14.3.0.drv",
+      "description": "GNU Compiler Collection, version 14.3.0 (wrapper script)",
+      "install_id": "gcc",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "gcc-wrapper-14.3.0",
+      "pname": "gcc",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:29.619740Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "14.3.0",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/06f2l6yw87mz3qf70dbkbqmcv5im6jp5-gcc-wrapper-14.3.0-info",
+        "man": "/nix/store/2d54z742vs7gr9x0is4apbblvlky4219-gcc-wrapper-14.3.0-man",
+        "out": "/nix/store/bcw9f6r9v2fm3kv7d15fcrya0mf34xds-gcc-wrapper-14.3.0"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ninja",
+      "broken": false,
+      "derivation": "/nix/store/xipx4zxczdin0v74xhwz8wzilyhgv1n4-ninja-1.13.1.drv",
+      "description": "Small build system with a focus on speed",
+      "install_id": "ninja",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "ninja-1.13.1",
+      "pname": "ninja",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:04.753772Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.13.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/ms5z813v67xkkd8d2iffjlkbh107y0nj-ninja-1.13.1"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ninja",
+      "broken": false,
+      "derivation": "/nix/store/z16645wqrcvvj53ng47rqmy8y1d72bhq-ninja-1.13.1.drv",
+      "description": "Small build system with a focus on speed",
+      "install_id": "ninja",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "ninja-1.13.1",
+      "pname": "ninja",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:38.949097Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.13.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/1715y06hl4s7pdz4c0n2ijvj6f6732rv-ninja-1.13.1"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ninja",
+      "broken": false,
+      "derivation": "/nix/store/114vmcb2rzsmpgzwy7a1a2i2mbzkiihb-ninja-1.13.1.drv",
+      "description": "Small build system with a focus on speed",
+      "install_id": "ninja",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "ninja-1.13.1",
+      "pname": "ninja",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:43:56.721935Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.13.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/q4cgrciphni25lpfjvl4vf2w7w3161wd-ninja-1.13.1"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ninja",
+      "broken": false,
+      "derivation": "/nix/store/cavzxbygx6zvbqq7jrmqdh1ac6czrhi6-ninja-1.13.1.drv",
+      "description": "Small build system with a focus on speed",
+      "install_id": "ninja",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "ninja-1.13.1",
+      "pname": "ninja",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:41.174502Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.13.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/nrq9nb3zpnc70wjqwkkf3bq9g261l4ak-ninja-1.13.1"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "protobuf",
+      "broken": false,
+      "derivation": "/nix/store/k30kh4f2ysgr4vgqk6fdjd6j3jmajgg2-protobuf-31.1.drv",
+      "description": "Google's data interchange format",
+      "install_id": "protobuf",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "protobuf-31.1",
+      "pname": "protobuf",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:12.917814Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "31.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/nk7vppqh2gm08mpy82k9lscxysjp7qj5-protobuf-31.1"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "protobuf",
+      "broken": false,
+      "derivation": "/nix/store/ndc0hi81dg88372i9iz4b9h82arlzhqg-protobuf-31.1.drv",
+      "description": "Google's data interchange format",
+      "install_id": "protobuf",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "protobuf-31.1",
+      "pname": "protobuf",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:54.388535Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "31.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/nghricb05dbv99fapy2wm8sz1ms15mfs-protobuf-31.1"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "protobuf",
+      "broken": false,
+      "derivation": "/nix/store/6d3lwpzjk8775xh7zc7609yqarxhfrrk-protobuf-31.1.drv",
+      "description": "Google's data interchange format",
+      "install_id": "protobuf",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "protobuf-31.1",
+      "pname": "protobuf",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:44:04.676371Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "31.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/lp93aacd36lckpyfqry96han05pqcpkg-protobuf-31.1"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "protobuf",
+      "broken": false,
+      "derivation": "/nix/store/wh7jfdscgkwvhv89kb8cf5xwg3kh5gfi-protobuf-31.1.drv",
+      "description": "Google's data interchange format",
+      "install_id": "protobuf",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "protobuf-31.1",
+      "pname": "protobuf",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:55.326029Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "31.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/g82m0ia59azh4a1bcrk0r15qck6hp8da-protobuf-31.1"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python312",
+      "broken": false,
+      "derivation": "/nix/store/966md1v0pdipqfkadjv92jcl0vbjvnrb-python3-3.12.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python312",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "python3-3.12.11",
+      "pname": "python312",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:26:13.140252Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "python3-3.12.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/msrmjs47wva2hk6bvqzh4b40rd5n0sqx-python3-3.12.11"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python312",
+      "broken": false,
+      "derivation": "/nix/store/d2fv45wa7bh3qfbc8bqhrbmh7l3qs098-python3-3.12.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python312",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "python3-3.12.11",
+      "pname": "python312",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:34:54.885935Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "python3-3.12.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/p4m00kdb42yvby08ch987ql95kpqig3c-python3-3.12.11-debug",
+        "out": "/nix/store/hz4bs0j928y9f2fpdgy86ms050sn43k7-python3-3.12.11"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python312",
+      "broken": false,
+      "derivation": "/nix/store/i6wl3zy7zsagy668xhgpawcg7gqy8axl-python3-3.12.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python312",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "python3-3.12.11",
+      "pname": "python312",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:44:04.926919Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "python3-3.12.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/xb3siyaqnb0icxdjrh6frh9r8xa0wr7g-python3-3.12.11"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python312",
+      "broken": false,
+      "derivation": "/nix/store/miahxibg7w7vha8l3nhzrxirm6awgzih-python3-3.12.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python312",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "python3-3.12.11",
+      "pname": "python312",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:51:55.787664Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "python3-3.12.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/1wha6vczhs0rx3b1k6imgdwsa6q4yzqm-python3-3.12.11-debug",
+        "out": "/nix/store/18l19gnl8dq75v6knghbcgkrikmpc0yv-python3-3.12.11"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "uv",
+      "broken": false,
+      "derivation": "/nix/store/g2kfc67p7fg7q5zpri6432d36ak1bsj3-uv-0.8.6.drv",
+      "description": "Extremely fast Python package installer and resolver, written in Rust",
+      "install_id": "uv",
+      "license": "[ Apache-2.0, MIT ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "uv-0.8.6",
+      "pname": "uv",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:27:20.423821Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.8.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/hxazvw40v90nic1yjx23cdkj6hqqlywa-uv-0.8.6"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "uv",
+      "broken": false,
+      "derivation": "/nix/store/5m6laj37dkg7jpxmr69dnb3q2m422d1a-uv-0.8.6.drv",
+      "description": "Extremely fast Python package installer and resolver, written in Rust",
+      "install_id": "uv",
+      "license": "[ Apache-2.0, MIT ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "uv-0.8.6",
+      "pname": "uv",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:36:40.649674Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.8.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/li6y1v2mjj30fd5prwkawidq5lcn9ja9-uv-0.8.6"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "uv",
+      "broken": false,
+      "derivation": "/nix/store/324hhmwqzqphn6vq37i4zkv3glamr2vg-uv-0.8.6.drv",
+      "description": "Extremely fast Python package installer and resolver, written in Rust",
+      "install_id": "uv",
+      "license": "[ Apache-2.0, MIT ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "uv-0.8.6",
+      "pname": "uv",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:45:11.571680Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.8.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/l37rdvvgc46jpydmyrwlxfhrslbfcnpm-uv-0.8.6"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "uv",
+      "broken": false,
+      "derivation": "/nix/store/fsv3g2p4y7c04678a0bpk6yparh2ysb7-uv-0.8.6.drv",
+      "description": "Extremely fast Python package installer and resolver, written in Rust",
+      "install_id": "uv",
+      "license": "[ Apache-2.0, MIT ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "name": "uv-0.8.6",
+      "pname": "uv",
+      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
+      "rev_count": 852432,
+      "rev_date": "2025-08-27T03:49:43Z",
+      "scrape_date": "2025-08-28T03:53:31.236928Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.8.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/hxvcjq4a053l4gm8asl4ynjyhlz2azib-uv-0.8.6"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    }
+  ]
+}
