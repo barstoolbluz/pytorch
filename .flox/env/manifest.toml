@@ -90,19 +90,19 @@ btop.pkg-path = "btop"
 ## ------------------------------------------------------------------
 [build]
 [build.pytorch-sm120]
-description = "PyTorch with FULL SM_120 kernel compilation for RTX 5090 - fixes Conv2D and cuDNN kernel issues"
+description = "PyTorch EXCLUSIVELY for RTX 5090 - ALL kernels compiled ONLY for SM_120 compute capability. Fixes ComfyUI Conv2D kernel issues."
 version = "2.10.0-sm120-kernels"
 command = """
   # Initialize git submodules first
   git submodule update --init --recursive
   
-  # Set up build environment with FORCED SM_120 kernel compilation
-  # Use only essential architectures plus SM_120 to force actual kernel compilation
-  export TORCH_CUDA_ARCH_LIST="7.5;8.0;8.6;9.0;12.0"
-  export CUDA_ARCH_LIST="7.5;8.0;8.6;9.0;12.0" 
+  # LONG-TERM SOLUTION: Focus EXCLUSIVELY on RTX 5090 (SM_120)
+  # This ensures ALL kernel compilation resources go to compute capability 12.0
+  export TORCH_CUDA_ARCH_LIST="12.0"
+  export CUDA_ARCH_LIST="12.0" 
   
-  # Force compilation of all CUDA kernels for SM_120
-  export TORCH_CUDA_GENCODE="-gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -gencode arch=compute_120,code=sm_120 -gencode arch=compute_120,code=compute_120"
+  # Force compilation of ALL CUDA kernels ONLY for SM_120
+  export TORCH_CUDA_GENCODE="-gencode arch=compute_120,code=sm_120 -gencode arch=compute_120,code=compute_120"
   
   export USE_CUDA=1
   export USE_CUDNN=1
@@ -113,8 +113,8 @@ command = """
   export BUILD_CUSTOM_PROTOBUF=OFF
   export MAX_JOBS=32
   
-  # Force kernel compilation flags
-  export CUDA_NVCC_FLAGS="--generate-code arch=compute_75,code=sm_75 --generate-code arch=compute_80,code=sm_80 --generate-code arch=compute_86,code=sm_86 --generate-code arch=compute_90,code=sm_90 --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120"
+  # Force kernel compilation flags - RTX 5090 ONLY
+  export CUDA_NVCC_FLAGS="--generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120"
   
   # Ensure all PyTorch CUDA operations compile for SM_120
   export BUILD_WITH_CUDA=ON
@@ -134,9 +134,9 @@ command = """
   export CUDNN_FRONTEND_PATH="$CUDA_HOME/include"
   export FORCE_CUDA_KERNEL_COMPILATION=1
   
-  # PyTorch specific flags to force kernel compilation
-  export TORCH_CUDA_GENCODE_LIST="7.5;8.0;8.6;9.0;12.0"
-  export CMAKE_CUDA_ARCHITECTURES="75;80;86;90;120"
+  # PyTorch specific flags to force kernel compilation - RTX 5090 EXCLUSIVE
+  export TORCH_CUDA_GENCODE_LIST="12.0"
+  export CMAKE_CUDA_ARCHITECTURES="120"
   
   # Create nvcc symlink to avoid flox paths in CMake
   mkdir -p /tmp/cuda-bin
