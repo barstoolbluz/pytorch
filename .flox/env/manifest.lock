@@ -9,12 +9,6 @@
       "cmake": {
         "pkg-path": "cmake"
       },
-      "cudatoolkit": {
-        "pkg-path": "flox-cuda/cudaPackages_12_9.cudatoolkit",
-        "systems": [
-          "x86_64-linux"
-        ]
-      },
       "gcc": {
         "pkg-path": "gcc"
       },
@@ -36,9 +30,9 @@
     "options": {},
     "build": {
       "pytorch-sm120": {
-        "command": "  # Initialize git submodules first\n  git submodule update --init --recursive\n  \n  # Set up build environment with FORCED SM_120 kernel compilation\n  # Use only essential architectures plus SM_120 to force actual kernel compilation\n  export TORCH_CUDA_ARCH_LIST=\"7.5;8.0;8.6;9.0;12.0\"\n  export CUDA_ARCH_LIST=\"7.5;8.0;8.6;9.0;12.0\" \n  \n  # Force compilation of all CUDA kernels for SM_120\n  export TORCH_CUDA_GENCODE=\"-gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -gencode arch=compute_120,code=sm_120 -gencode arch=compute_120,code=compute_120\"\n  \n  export USE_CUDA=1\n  export USE_CUDNN=1\n  export USE_CUFILE=0\n  export USE_TENSORPIPE=0\n  export USE_NCCL=0\n  export USE_SYSTEM_PROTOBUF=1\n  export BUILD_CUSTOM_PROTOBUF=OFF\n  export MAX_JOBS=32\n  \n  # Force kernel compilation flags\n  export CUDA_NVCC_FLAGS=\"--generate-code arch=compute_75,code=sm_75 --generate-code arch=compute_80,code=sm_80 --generate-code arch=compute_86,code=sm_86 --generate-code arch=compute_90,code=sm_90 --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120\"\n  \n  # Ensure all PyTorch CUDA operations compile for SM_120\n  export BUILD_WITH_CUDA=ON\n  export USE_CUDA_STATIC_LINK=0\n  \n  # Set CUDA paths\n  export CUDA_HOME=/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9\n  export LD_LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LD_LIBRARY_PATH\"\n  export LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LIBRARY_PATH\"\n  \n  # Compiler flags with explicit SM_120 kernel compilation\n  export CXXFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export CFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export NVCCFLAGS=\"--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120\"\n  \n  # Ensure cuDNN kernels compile for SM_120\n  export CUDNN_FRONTEND_PATH=\"$CUDA_HOME/include\"\n  export FORCE_CUDA_KERNEL_COMPILATION=1\n  \n  # PyTorch specific flags to force kernel compilation\n  export TORCH_CUDA_GENCODE_LIST=\"7.5;8.0;8.6;9.0;12.0\"\n  export CMAKE_CUDA_ARCHITECTURES=\"75;80;86;90;120\"\n  \n  # Create nvcc symlink to avoid flox paths in CMake\n  mkdir -p /tmp/cuda-bin\n  ln -sf $CUDA_HOME/bin/nvcc /tmp/cuda-bin/nvcc\n  export PATH=\"/tmp/cuda-bin:$PATH\"\n  \n  # Create Python virtual environment\n  python3 -m venv build_venv\n  source build_venv/bin/activate\n  \n  # Install Python dependencies\n  pip install --upgrade pip setuptools wheel\n  pip install cmake ninja six\n  pip install -r requirements.txt\n  \n  # Set up six module for NNPACK\n  mkdir -p build/confu-srcs/six\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/six/__init__.py\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/\n  cp build_venv/lib/python3.12/site-packages/six.py third_party/python-peachpy/\n  \n  # Build PyTorch\n  python setup.py develop\n  \n  # Install to output directory\n  mkdir -p $out/lib/python3.12/site-packages\n  cp -r build_venv/lib/python3.12/site-packages/torch* $out/lib/python3.12/site-packages/\n  \n  # Create wrapper script\n  mkdir -p $out/bin\n  cat > $out/bin/pytorch-sm120-info << EOF\n#!/bin/bash\necho \"PyTorch with SM_120 support for RTX 5090\"\npython3 -c \"import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA arch list: {torch.cuda.get_arch_list()}' if torch.cuda.is_available() else 'CUDA not available')\"\nEOF\n  chmod +x $out/bin/pytorch-sm120-info\n",
+        "command": "  # Initialize git submodules first\n  git submodule update --init --recursive\n  \n  # LONG-TERM SOLUTION: Focus EXCLUSIVELY on RTX 5090 (SM_120)\n  # This ensures ALL kernel compilation resources go to compute capability 12.0\n  export TORCH_CUDA_ARCH_LIST=\"12.0\"\n  export CUDA_ARCH_LIST=\"12.0\" \n  \n  # Force compilation of ALL CUDA kernels ONLY for SM_120\n  export TORCH_CUDA_GENCODE=\"-gencode arch=compute_120,code=sm_120 -gencode arch=compute_120,code=compute_120\"\n  \n  export USE_CUDA=1\n  export USE_CUDNN=1\n  export USE_CUFILE=0\n  export USE_TENSORPIPE=0\n  export USE_NCCL=0\n  export USE_SYSTEM_PROTOBUF=1\n  export BUILD_CUSTOM_PROTOBUF=OFF\n  export MAX_JOBS=32\n  \n  # Force kernel compilation flags - RTX 5090 ONLY\n  export CUDA_NVCC_FLAGS=\"--generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120\"\n  \n  # Ensure all PyTorch CUDA operations compile for SM_120\n  export BUILD_WITH_CUDA=ON\n  export USE_CUDA_STATIC_LINK=0\n  \n  # Set CUDA paths\n  export CUDA_HOME=/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9\n  export LD_LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LD_LIBRARY_PATH\"\n  export LIBRARY_PATH=\"$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LIBRARY_PATH\"\n  \n  # Compiler flags with explicit SM_120 kernel compilation\n  export CXXFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export CFLAGS=\"-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2\"\n  export NVCCFLAGS=\"--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120\"\n  \n  # Ensure cuDNN kernels compile for SM_120\n  export CUDNN_FRONTEND_PATH=\"$CUDA_HOME/include\"\n  export FORCE_CUDA_KERNEL_COMPILATION=1\n  \n  # PyTorch specific flags to force kernel compilation - RTX 5090 EXCLUSIVE\n  export TORCH_CUDA_GENCODE_LIST=\"12.0\"\n  export CMAKE_CUDA_ARCHITECTURES=\"120\"\n  \n  # Create nvcc symlink to avoid flox paths in CMake\n  mkdir -p /tmp/cuda-bin\n  ln -sf $CUDA_HOME/bin/nvcc /tmp/cuda-bin/nvcc\n  export PATH=\"/tmp/cuda-bin:$PATH\"\n  \n  # Create Python virtual environment\n  python3 -m venv build_venv\n  source build_venv/bin/activate\n  \n  # Install Python dependencies\n  pip install --upgrade pip setuptools wheel\n  pip install cmake ninja six\n  pip install -r requirements.txt\n  \n  # Set up six module for NNPACK\n  mkdir -p build/confu-srcs/six\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/six/__init__.py\n  cp build_venv/lib/python3.12/site-packages/six.py build/confu-srcs/\n  cp build_venv/lib/python3.12/site-packages/six.py third_party/python-peachpy/\n  \n  # Build PyTorch\n  python setup.py develop\n  \n  # Install to output directory\n  mkdir -p $out/lib/python3.12/site-packages\n  cp -r build_venv/lib/python3.12/site-packages/torch* $out/lib/python3.12/site-packages/\n  \n  # Create wrapper script\n  mkdir -p $out/bin\n  cat > $out/bin/pytorch-sm120-info << EOF\n#!/bin/bash\necho \"PyTorch with SM_120 support for RTX 5090\"\npython3 -c \"import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA arch list: {torch.cuda.get_arch_list()}' if torch.cuda.is_available() else 'CUDA not available')\"\nEOF\n  chmod +x $out/bin/pytorch-sm120-info\n",
         "version": "2.10.0-sm120-kernels",
-        "description": "PyTorch with FULL SM_120 kernel compilation for RTX 5090 - fixes Conv2D and cuDNN kernel issues"
+        "description": "PyTorch EXCLUSIVELY for RTX 5090 - ALL kernels compiled ONLY for SM_120 compute capability. Fixes ComfyUI Conv2D kernel issues."
       }
     }
   },
@@ -288,37 +282,6 @@
       "outputs": {
         "debug": "/nix/store/nnpfia0s39cy3l7rq2pnn2axs8k625jw-cmake-3.31.7-debug",
         "out": "/nix/store/0vnarm4qjnj16dr3zj9kwq6bn79c0icn-cmake-3.31.7"
-      },
-      "system": "x86_64-linux",
-      "group": "toplevel",
-      "priority": 5
-    },
-    {
-      "attr_path": "cudaPackages_12_9.cudatoolkit",
-      "broken": false,
-      "derivation": "/nix/store/2xbd7fqnp1qj1aaj9jzzbl7l20r8gs22-cuda-merged-12.9.drv",
-      "description": "Wrapper substituting the deprecated runfile-based CUDA installation",
-      "install_id": "cudatoolkit",
-      "license": "CUDA Toolkit End User License Agreement (EULA)",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=8a6d5427d99ec71c64f0b93d45778c889005d9c2",
-      "name": "cuda-merged-12.9",
-      "pname": "cuda-merged-12.9",
-      "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
-      "rev_count": 852432,
-      "rev_date": "2025-08-27T03:49:43Z",
-      "scrape_date": "2025-09-10T10:59:20.133729981Z",
-      "stabilities": [
-        "stable",
-        "staging",
-        "unstable"
-      ],
-      "unfree": true,
-      "version": "12.9",
-      "outputs_to_install": [
-        "out"
-      ],
-      "outputs": {
-        "out": "/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
