@@ -17,8 +17,8 @@ version = 1
 [install]
 python312.pkg-path = "python312"
 ninja.pkg-path = "ninja"
-cudatoolkit.pkg-path = "flox-cuda/cudaPackages_12_9.cudatoolkit"
-cudatoolkit.systems = ["x86_64-linux"]
+#cudatoolkit.pkg-path = "flox-cuda/cudaPackages_12_9.cudatoolkit"
+#cudatoolkit.systems = ["x86_64-linux"]
 uv.pkg-path = "uv"
 gcc.pkg-path = "gcc"
 cmake.pkg-path = "cmake"
@@ -91,7 +91,7 @@ btop.pkg-path = "btop"
 [build]
 [build.pytorch-sm120]
 description = "PyTorch EXCLUSIVELY for RTX 5090 - ALL kernels compiled ONLY for SM_120 compute capability. Fixes ComfyUI Conv2D kernel issues."
-version = "2.10.0-sm120-kernels"
+version = "2.10.0-sm120-cuda13"
 command = """
   # Initialize git submodules first
   git submodule update --init --recursive
@@ -120,28 +120,32 @@ command = """
   export BUILD_WITH_CUDA=ON
   export USE_CUDA_STATIC_LINK=0
   
-  # Set CUDA paths
-  export CUDA_HOME=/nix/store/gq412g98b5jip0l603yk9hvm938nkmpv-cuda-merged-12.9
-  export LD_LIBRARY_PATH="$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LD_LIBRARY_PATH"
-  export LIBRARY_PATH="$CUDA_HOME/lib:/nix/store/v4b7mkhyq1akczzkcyynj7y9c61l9dc7-cuda_cudart-12.9.79-static/lib:$LIBRARY_PATH"
+  # Set CUDA paths for local CUDA 13.0 installation
+  export CUDA_HOME=/usr/local/cuda-13.0
+  export CUDA_ROOT=/usr/local/cuda-13.0
+  export CUDATOOLKIT_HOME=/usr/local/cuda-13.0
+  export LD_LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/lib:$LD_LIBRARY_PATH"
+  export LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/lib:$LIBRARY_PATH"
   
   # Compiler flags with explicit SM_120 kernel compilation
   export CXXFLAGS="-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2"
   export CFLAGS="-Wno-error -Wno-nonnull -Wno-array-bounds -Wno-stringop-overflow -O2"
   export NVCCFLAGS="--std=c++17 -Wno-deprecated-gpu-targets --allow-unsupported-compiler --generate-code arch=compute_120,code=sm_120 --generate-code arch=compute_120,code=compute_120"
   
-  # Ensure cuDNN kernels compile for SM_120
+  # Ensure cuDNN kernels compile for SM_120 with CUDA 13.0
+  export CUDNN_LIBRARY="$CUDA_HOME/lib64"
+  export CUDNN_INCLUDE_DIR="$CUDA_HOME/include"
   export CUDNN_FRONTEND_PATH="$CUDA_HOME/include"
   export FORCE_CUDA_KERNEL_COMPILATION=1
+  export TORCH_NVCC_FLAGS="--expt-relaxed-constexpr"
   
   # PyTorch specific flags to force kernel compilation - RTX 5090 EXCLUSIVE
   export TORCH_CUDA_GENCODE_LIST="12.0"
   export CMAKE_CUDA_ARCHITECTURES="120"
   
-  # Create nvcc symlink to avoid flox paths in CMake
-  mkdir -p /tmp/cuda-bin
-  ln -sf $CUDA_HOME/bin/nvcc /tmp/cuda-bin/nvcc
-  export PATH="/tmp/cuda-bin:$PATH"
+  # Use local CUDA 13.0 toolkit directly
+  export PATH="$CUDA_HOME/bin:$PATH"
+  export CUDA_TOOLKIT_ROOT_DIR="$CUDA_HOME"
   
   # Create Python virtual environment
   python3 -m venv build_venv
